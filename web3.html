@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настя и Вероника</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: white; 
+            margin: 0; 
+            padding: 20px; 
+            color: rgb(51, 51, 51); 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+        }
+        h1 { 
+            color: rgb(68, 68, 68); 
+            margin-bottom: 10px; 
+        }
+        .profiles { 
+            display: flex; 
+            justify-content: space-around; 
+            margin: 30px 0; 
+        }
+        .profile { 
+            text-align: center; 
+        }
+        .profile-img { 
+            width: 150px; 
+            height: 150px; 
+            object-fit: cover; 
+            margin-bottom: 10px; 
+        }
+        .vk-link { 
+            color: rgb(138, 43, 226); 
+            text-decoration-line: none; 
+            font-weight: bold; 
+        }
+        .veronika-vk { 
+            color: rgb(230, 103, 168); 
+        }
+        section { 
+            margin: 40px 0; 
+            padding: 20px; 
+            border: 1px solid rgb(221, 221, 221); 
+            border-radius: 8px; 
+        }
+        h2 { 
+            color: rgb(85, 85, 85); 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+        .photo-item { 
+            text-align: center; 
+            margin: 20px 0; 
+        }
+        .photo { 
+            width: 100%; 
+            max-width: 400px; 
+            height: 250px; 
+            object-fit: cover; 
+            border-radius: 5px; 
+        }
+        footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            color: rgb(102, 102, 102); 
+        }
+        
+        /* Стили для секции комментариев */
+        #comments-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        #comment-form {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        #comment-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #comment-form input,
+        #comment-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #comment-form button {
+            background-color: #8a2be2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #comment-form button:hover {
+            background-color: #7a1ad2;
+        }
+        .comment {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .comment-author {
+            color: #8a2be2; /* Single color for all authors */
+        }
+        .comment-date {
+            font-size: 0.8em;
+            color: #888;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #ff4444;
+        }
+        .delete-btn:hover {
+            color: #cc0000;
+        }
+        .comment-text {
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Студентки НГТУ</h1>
+            <p>Факультет прикладной математики и информатики, 3 курс</p>
+        </header>
+
+        <div class="profiles">
+            <div class="profile">
+                <img src="https://i.postimg.cc/prjhfvc5/image.jpg" alt="Фото Насти" class="profile-img">
+                <h2>Анастасия Одияк</h2>
+                <p>19 лет</p>
+                <a href="https://vk.com/xipeix" class="vk-link" target="_blank">ВКонтакте</a>
+            </div>
+            <div class="profile">
+                <img src="https://i.postimg.cc/L6KKNS0g/5429411628417418452.jpg" alt="Фото Вероники" class="profile-img">
+                <h2>Вероника Бурковская</h2>
+                <p>19 лет</p>
+                <a href="https://vk.com/veronika_burk" class="vk-link veronika-vk" target="_blank">ВКонтакте</a>
+            </div>
+        </div>
+
+        <section>
+            <h2>Анастасия Одияк</h2>
+            <p>Привет! Меня зовут Настя, мне 19 лет. Я учусь в НГТУ на факультете прикладной математики и информатики на третьем курсе.</p>
+            <p>Увлекаюсь программированием и всем, что связано с технологиями. В свободное время люблю фотографировать, путешествовать и проводить время с друзьями.</p>
+            <div class="photo-item">
+                <img src="https://i.postimg.cc/2yWbQY91/image.jpg" alt="Прогулка по городу" class="photo">
+                <h3>Прогулка по городу</h3>
+                <p>Люблю исследовать красивые места в нашем городе.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Вероника Бурковская</h2>
+            <p>Привет! Я Вероника, мне 20 лет. Учусь вместе с Настей в одной группе.</p>
+            <p>В свободное время изучаю ML и анализ данных, занимаюсь рисованием. Мечтаю стать успешным Data-Science специалистом.</p>
+            <div class="photo-item">
+                <img src="https://i.postimg.cc/pXbbqv19/5429411628417418460.jpg" alt="Мое творчество" class="photo">
+                <h3>Мое творчество</h3>
+                <p>Люблю проводить вечера за рисованием</p>
+            </div>
+        </section>
+
+        <!-- Секция комментариев -->
+        <section id="comments-section">
+            <h2>Комментарии</h2>
+            <div id="comment-form">
+                <h3>Добавить комментарий</h3>
+                <form id="new-comment-form">
+                    <div>
+                        <label for="author">Имя:</label>
+                        <input type="text" id="author" required placeholder="Введите ваше имя">
+                    </div>
+                    <div>
+                        <label for="comment-text">Комментарий:</label>
+                        <textarea id="comment-text" rows="4" required></textarea>
+                    </div>
+                    <button type="submit">Добавить комментарий</button>
+                </form>
+            </div>
+            <div id="comments-container">
+                <h3>Все комментарии</h3>
+                <div id="comments-list">
+                    <!-- Комментарии будут добавляться здесь динамически -->
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Анастасия Одияк и Вероника Бурковская</p>
+        </footer>
+    </div>
+
+    <script>
+        // Конфигурация
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw_gGyHJLWwrljKFAAZiEsjt-NCOefuVvStgKeMdEcqj9hidm-Dj3td53gElDtMsBDn/exec'; // Replace with your Google Apps Script Web App URL
+
+        // Функция для получения комментариев с сервера
+        async function getComments() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Ошибка загрузки комментариев:', error);
+                return [];
+            }
+        }
+
+        // Функция для отправки комментария на сервер
+        async function addCommentToServer(comment) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(comment)
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Ошибка отправки комментария:', error);
+                return { success: false };
+            }
+        }
+
+        // Функция для отправки запроса на удаление комментария
+        async function deleteCommentToServer(commentId) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'delete', id: commentId })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Ошибка удаления комментария:', error);
+                return { success: false };
+            }
+        }
+
+        // Функция для создания DOM-элемента комментария
+        function createCommentElement(comment) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+            commentDiv.dataset.id = comment.id;
+            
+            commentDiv.innerHTML = `
+                <div class="comment-header comment-author">
+                    <strong>${comment.author}</strong>
+                    <span class="comment-date">${comment.date}</span>
+                    <button class="delete-btn" onclick="deleteComment(${comment.id})">×</button>
+                </div>
+                <div class="comment-text">${comment.text}</div>
+            `;
+            
+            return commentDiv;
+        }
+
+        // Функция для отображения всех комментариев
+        async function displayComments() {
+            const commentsList = document.getElementById('comments-list');
+            const comments = await getComments();
+            
+            commentsList.innerHTML = '';
+            
+            // Сортируем комментарии по дате (новые сверху)
+            comments.sort((a, b) => b.timestamp - a.timestamp);
+            
+            comments.forEach(comment => {
+                const commentElement = createCommentElement(comment);
+                commentsList.appendChild(commentElement);
+            });
+        }
+
+        // Функция для добавления нового комментария
+        async function addComment(author, text) {
+            const newComment = {
+                id: Date.now(),
+                author: author,
+                text: text,
+                date: new Date().toLocaleString('ru-RU'),
+                timestamp: new Date().toISOString()
+            };
+            
+            const button = document.querySelector('#new-comment-form button');
+            button.disabled = true;
+            button.textContent = 'Отправка...';
+            
+            const result = await addCommentToServer(newComment);
+            
+            button.disabled = false;
+            button.textContent = 'Добавить комментарий';
+            
+            if (result.success) {
+                const commentsList = document.getElementById('comments-list');
+                const commentElement = createCommentElement(newComment);
+                commentsList.prepend(commentElement);
+            } else {
+                alert('Ошибка при добавлении комментария');
+            }
+        }
+
+        // Функция для удаления комментария
+        async function deleteComment(commentId) {
+            if (!confirm('Вы уверены, что хотите удалить этот комментарий?')) {
+                return;
+            }
+            
+            const result = await deleteCommentToServer(commentId);
+            
+            if (result.success) {
+                const commentElement = document.querySelector(`.comment[data-id="${commentId}"]`);
+                if (commentElement) {
+                    commentElement.remove();
+                }
+            } else {
+                alert('Ошибка при удалении комментария');
+            }
+        }
+
+        // Обработчик отправки формы
+        document.addEventListener('DOMContentLoaded', function() {
+            displayComments();
+            
+            const commentForm = document.getElementById('new-comment-form');
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const author = document.getElementById('author').value.trim();
+                const text = document.getElementById('comment-text').value.trim();
+                
+                if (author && text) {
+                    addComment(author, text);
+                    document.getElementById('author').value = '';
+                    document.getElementById('comment-text').value = '';
+                } else {
+                    alert('Пожалуйста, заполните все поля');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
