@@ -1,11 +1,11 @@
 {
-  "name": "comment-app-server",
+  "name": "comment-app",
   "version": "1.0.0",
-  "description": "Server for comment application",
-  "main": "index.js",
+  "description": "Comment application with Node.js server",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
