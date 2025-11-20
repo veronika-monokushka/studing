@@ -1,5 +1,6 @@
 #include "Point.h"
 #include "Integration_forms.h"
+#include <cmath>
 
 namespace Com_Methods
 {
@@ -21,6 +22,17 @@ namespace Com_Methods
 					Point(-1, 0, 0),  // левая точка
 					Point(0, 0, 0),   // средняя точка  
 					Point(1, 0, 0)    // правая точка
+				};
+				break;
+			}
+
+			case Gauss3: // Гаусс-3
+			{
+				Weight = { 5.0/9.0, 8.0/9.0, 5.0/9.0 };
+				Points = { 
+					Point(-std::sqrt(3.0/5.0), 0, 0),  // левая точка
+					Point(0, 0, 0),   // средняя точка  
+					Point(std::sqrt(3.0/5.0), 0, 0)    // правая точка
 				};
 				break;
 			}
