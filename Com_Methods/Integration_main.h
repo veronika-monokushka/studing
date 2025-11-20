@@ -13,7 +13,8 @@ namespace Com_Methods
 		enum Integration_Scheme_Type
 		{
 			Gauss1 = 1,
-			Simpson = 2
+			Simpson = 2,
+			Gauss3 = 3
 		};
 	};
 }
