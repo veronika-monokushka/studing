@@ -15,8 +15,8 @@ int main()
 	std::function<double(const Com_Methods::Point &P)> F =
 	[](const Com_Methods::Point &P) { return -cos(P.x()); };
 
-	//квадратурная формула Гаусс-1
-	Com_Methods::Integration_Scheme_Interval Form_Gauss1(Com_Methods::Integration_Scheme::Gauss1);
+	//квадратурная формула Гаусс-3
+	Com_Methods::Integration_Scheme_Interval Form_Gauss(Com_Methods::Integration_Scheme::Gauss3);
 	//квадратурная формула Метод Симпсона
 	Com_Methods::Integration_Scheme_Interval Form_Simpson(Com_Methods::Integration_Scheme::Simpson);
 
@@ -33,7 +33,7 @@ int main()
 
 	for (int i=0; i<3; i++) {
 		
-		I_values[i] = Form_Simpson.Calculate_Integral(Begin, End, Num_Segments[i], f);
+		I_values[i] = Form_Gauss.Calculate_Integral(Begin, End, Num_Segments[i], f);
 
 		std::cout << "h  = " << (End.x() - Begin.x()) / Num_Segments[i] << std::endl;
 		std::cout << "I  = " << I_values[i] << std::endl;
