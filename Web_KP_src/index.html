@@ -198,6 +198,17 @@
             border-color: #e74c3c;
         }
         
+        .cell.blocked {
+            background: #95a5a6 !important;
+            cursor: not-allowed;
+        }
+        .cell.blocked::after {
+            content: "✕";
+            font-size: 20px;
+            color: #7f8c8d;
+            opacity: 0.5;
+        }
+
         /* Панель управления */
         .controls { 
             text-align: center; 
@@ -834,8 +845,13 @@
                         this.addSystemMessage(`🎯 Вы попали в (${x},${y})!`);
                         
                         if (message.shipSunk) {
-                            this.opponentSunkShips = (this.opponentSunkShips || 0) + 1; // Увеличиваем счетчик потопленных
+                            this.opponentSunkShips = (this.opponentSunkShips || 0) + 1;
                             this.addSystemMessage('💥 Вы потопили корабль противника!');
+                            
+                            // Помечаем клетки вокруг потопленного корабля используя данные с сервера
+                            if (message.cellsAroundShip) {
+                                this.markCellsAroundShip(message.cellsAroundShip, false);
+                            }
                         }
                     } else {
                         this.opponentBoard[y][x] = 3; // Промах
@@ -850,6 +866,11 @@
                         
                         if (message.shipSunk) {
                             this.addSystemMessage('😢 Противник потопил ваш корабль!');
+                            
+                            // Помечаем клетки вокруг потопленного корабля на вашем поле
+                            if (message.cellsAroundShip) {
+                                this.markCellsAroundShip(message.cellsAroundShip, true);
+                            }
                         }
                     } else {
                         this.playerBoard[y][x] = 3; // Промах противника
@@ -857,10 +878,26 @@
                     }
                 }
                 
-                this.updateCounters(); // Обновляем счетчики после каждого выстрела
+                this.updateCounters();
                 this.renderBoards();
             }
             
+            markCellsAroundShip(cells, isPlayerBoard) {
+                if (!cells || !Array.isArray(cells)) return;
+                
+                const board = isPlayerBoard ? this.playerBoard : this.opponentBoard;
+                
+                cells.forEach(cell => {
+                    const x = cell.x;
+                    const y = cell.y;
+                    
+                    // Помечаем только пустые клетки (0) или промахи (3)
+                    if (board[y][x] === 0 || board[y][x] === 3) {
+                        board[y][x] = 4; // 4 = заблокированная клетка (вокруг потопленного)
+                    }
+                });
+            }
+
             gameOver(message) {
                 this.gameState = 'gameover';
                 
@@ -1129,9 +1166,10 @@
             shoot(x, y) {
                 if (this.gameState !== 'battle' || !this.isMyTurn) return;
                 
-                // Проверяем, не стреляли ли уже сюда
-                if (this.opponentBoard[y][x] !== 0) {
-                    this.showError('Сюда уже стреляли');
+                // Проверяем, не стреляли ли уже сюда или клетка заблокирована
+                const cellValue = this.opponentBoard[y][x];
+                if (cellValue !== 0 && cellValue !== 1) { // 0 - пусто, 1 - корабль (невидим для игрока)
+                    this.showError('Сюда уже стреляли или клетка заблокирована');
                     return;
                 }
                 
@@ -1155,15 +1193,14 @@
                 
                 board.innerHTML = '';
                 
-                // Создаем сетку 10x10 без дополнительных координатных клеток внутри сетки
                 for (let y = 0; y < 10; y++) {
                     for (let x = 0; x < 10; x++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell';
-                        cell.dataset.x = x;  // Тут правильные координаты
-                        cell.dataset.y = y;  // Тут правильные координаты
+                        cell.dataset.x = x;
+                        cell.dataset.y = y;
                         
-                        const cellValue = this.playerBoard[y][x];  // Прямой доступ к массиву
+                        const cellValue = this.playerBoard[y][x];
                         
                         if (cellValue === 1) {
                             cell.classList.add('ship');
@@ -1174,6 +1211,8 @@
                             cell.classList.add('hit');
                         } else if (cellValue === 3) {
                             cell.classList.add('miss');
+                        } else if (cellValue === 4) {
+                            cell.classList.add('blocked');
                         }
                         
                         board.appendChild(cell);
@@ -1187,26 +1226,28 @@
                 
                 board.innerHTML = '';
                 
-                // Создаем сетку 10x10 без дополнительных координатных клеток внутри сетки
                 for (let y = 0; y < 10; y++) {
                     for (let x = 0; x < 10; x++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell';
-                        cell.dataset.x = x;  // Тут правильные координаты
-                        cell.dataset.y = y;  // Тут правильные координаты
+                        cell.dataset.x = x;
+                        cell.dataset.y = y;
                         
-                        const cellValue = this.opponentBoard[y][x];  // Прямой доступ к массиву
+                        const cellValue = this.opponentBoard[y][x];
                         
                         if (cellValue === 2) {
                             cell.classList.add('hit');
                         } else if (cellValue === 3) {
                             cell.classList.add('miss');
+                        } else if (cellValue === 4) {
+                            cell.classList.add('blocked');
                         }
                         
                         board.appendChild(cell);
                     }
                 }
             }
+
             
             
             updatePlayerBoard() {

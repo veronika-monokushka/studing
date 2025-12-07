@@ -437,6 +437,7 @@ function handleShoot(ws, x, y) {
   let shipSunk = false;
   let sunkShip = null;
   let gameOver = false;
+  let cellsToMark = []; // Добавляем массив для клеток вокруг потопленного корабля
 
   // Проверяем попадание
   if (opponentBoard.board[y][x] === 1) {
@@ -465,6 +466,9 @@ function handleShoot(ws, x, y) {
           if (allHit) {
             shipSunk = true;
             sunkShip = ship;
+            
+            // Собираем клетки вокруг потопленного корабля
+            cellsToMark = getCellsAroundShip(ship, opponentBoard.board);
           }
           break;
         }
@@ -497,6 +501,7 @@ function handleShoot(ws, x, y) {
     hit: hit,
     shipSunk: shipSunk,
     sunkShip: sunkShip,
+    cellsAroundShip: cellsToMark, // Добавляем информацию о клетках вокруг корабля
     playerId: ws.player.id,
     targetPlayerId: opponent.player.id,
   });
@@ -520,6 +525,46 @@ function handleShoot(ws, x, y) {
     });
   }
   // Если было попадание, ход остается у того же игрока
+}
+
+function getCellsAroundShip(ship, board) {
+  const cells = [];
+  
+  for (let i = 0; i < ship.size; i++) {
+    const shipX = ship.isHorizontal ? ship.x + i : ship.x;
+    const shipY = ship.isHorizontal ? ship.y : ship.y + i;
+    
+    // Проверяем все клетки вокруг каждой клетки корабля
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const nx = shipX + dx;
+        const ny = shipY + dy;
+        
+        // Проверяем границы поля
+        if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+          // Добавляем только если клетка не является частью корабля (значение 1)
+          // и не является уже попаданием (значение 2)
+          if (board[ny][nx] !== 1 && board[ny][nx] !== 2) {
+            cells.push({ x: nx, y: ny });
+          }
+        }
+      }
+    }
+  }
+  
+  // Убираем дубликаты (если клетка попадает в зону нескольких клеток корабля)
+  const uniqueCells = [];
+  const seen = new Set();
+  
+  for (const cell of cells) {
+    const key = `${cell.x},${cell.y}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueCells.push(cell);
+    }
+  }
+  
+  return uniqueCells;
 }
 
 function handleChatMessage(ws, text) {
