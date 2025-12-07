@@ -79,6 +79,9 @@ function isValidShipPlacement(board, ship, x, y, isHorizontal) {
   return true;
 }
 
+// Добавляем счетчик сообщений для каждого игрока
+const messageRates = new Map();
+
 wss.on("connection", (ws) => {
   console.log("Новое подключение");
 
@@ -88,13 +91,46 @@ wss.on("connection", (ws) => {
     room: null,
     ready: false,
     name: `Игрок_${Math.floor(Math.random() * 1000)}`,
+    lastMessages: [], // Массив временных меток последних сообщений
   };
+
+  // Инициализируем счетчик сообщений
+  messageRates.set(ws.player.id, {
+    count: 0,
+    lastReset: Date.now()
+  });
 
   // Отправляем список комнат при подключении
   sendRoomsList(ws);
 
   ws.on("message", (data) => {
     try {
+      // Проверка rate limiting
+      const rateInfo = messageRates.get(ws.player.id);
+      const now = Date.now();
+      
+      // Сбрасываем счетчик каждую минуту
+      if (now - rateInfo.lastReset > 60000) {
+        rateInfo.count = 0;
+        rateInfo.lastReset = now;
+      }
+      
+      // Ограничиваем 60 сообщений в минуту
+      if (rateInfo.count > 60) {
+        console.log(`Игрок ${ws.player.id} превысил лимит сообщений`);
+        sendToClient(ws, { type: "error", message: "Слишком много сообщений. Подождите." });
+        return;
+      }
+      
+      rateInfo.count++;
+      
+      // Проверяем размер данных
+      if (data.length > 10000) {
+        console.log(`Игрок ${ws.player.id} отправил слишком большое сообщение`);
+        sendToClient(ws, { type: "error", message: "Сообщение слишком большое" });
+        return;
+      }
+      
       const message = JSON.parse(data);
       handleMessage(ws, message);
     } catch (error) {
@@ -104,6 +140,8 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     console.log("Отключение:", ws.player.id);
+    // Удаляем rate limiting информацию
+    messageRates.delete(ws.player.id);
     if (ws.player.room) {
       handleDisconnect(ws);
     }
@@ -115,11 +153,36 @@ wss.on("connection", (ws) => {
 });
 
 function handleMessage(ws, message) {
+  // Проверяем, что message - объект и имеет тип
+  if (!message || typeof message !== 'object' || !message.type) {
+    console.error('Некорректное сообщение:', message);
+    sendToClient(ws, { type: "error", message: "Некорректное сообщение" });
+    return;
+  }
+  
+  // Проверяем тип сообщения
+  const validTypes = [
+    'join_room', 'leave_room', 'place_ships', 'shoot', 
+    'chat_message', 'get_rooms', 'player_ready'
+  ];
+  
+  if (!validTypes.includes(message.type)) {
+    console.error('Неизвестный тип сообщения:', message.type);
+    sendToClient(ws, { type: "error", message: "Неизвестный тип сообщения" });
+    return;
+  }
+  
   console.log("Получено сообщение:", message.type);
 
   switch (message.type) {
     case "join_room":
-      joinRoom(ws, message.roomId);
+      // Валидация roomId
+      const roomId = parseInt(message.roomId);
+      if (!validateNumber(roomId, 1, MAX_ROOMS)) {
+        sendToClient(ws, { type: "error", message: "Некорректный номер комнаты" });
+        return;
+      }
+      joinRoom(ws, roomId);
       break;
     case "leave_room":
       leaveRoom(ws);
@@ -128,10 +191,22 @@ function handleMessage(ws, message) {
       placeShips(ws, message.ships);
       break;
     case "shoot":
-      handleShoot(ws, message.x, message.y);
+      // Валидация координат
+      if (!validateNumber(message.x, 0, BOARD_SIZE - 1) || 
+          !validateNumber(message.y, 0, BOARD_SIZE - 1)) {
+        sendToClient(ws, { type: "error", message: "Некорректные координаты" });
+        return;
+      }
+      handleShoot(ws, parseInt(message.x), parseInt(message.y));
       break;
     case "chat_message":
-      handleChatMessage(ws, message.text);
+      // Санитизация текста чата
+      if (typeof message.text !== 'string') {
+        sendToClient(ws, { type: "error", message: "Некорректное сообщение чата" });
+        return;
+      }
+      const sanitizedText = sanitizeString(message.text.substring(0, 200)); // Ограничение длины
+      handleChatMessage(ws, sanitizedText);
       break;
     case "get_rooms":
       sendRoomsList(ws);
@@ -281,6 +356,12 @@ function placeShips(ws, ships) {
   const playerBoard = room.boards.get(ws.player.id);
   if (!playerBoard) return;
 
+  // Проверяем, что ships - массив
+  if (!Array.isArray(ships)) {
+    sendToClient(ws, { type: "error", message: "Некорректные данные кораблей" });
+    return;
+  }
+
   // Конфигурация кораблей
   const requiredShips = [
     { size: 4, count: 1 },
@@ -295,22 +376,34 @@ function placeShips(ws, ships) {
   try {
     // Валидация каждого корабля
     for (const ship of ships) {
-      // Проверка размера
+      // Проверяем структуру корабля
+      if (!ship || typeof ship !== 'object') {
+        throw new Error("Некорректная структура корабля");
+      }
+      
+      // Валидация размера
+      if (!validateNumber(ship.size, 1, 4)) {
+        throw new Error(`Неверный размер корабля: ${ship.size}`);
+      }
+
+      // Валидация координат
+      if (!validateNumber(ship.x, 0, BOARD_SIZE - 1) || 
+          !validateNumber(ship.y, 0, BOARD_SIZE - 1)) {
+        throw new Error("Некорректные координаты корабля");
+      }
+
+      // Проверка типа ориентации
+      if (typeof ship.isHorizontal !== 'boolean') {
+        throw new Error("Некорректная ориентация корабля");
+      }
+
       const shipConfig = requiredShips.find((s) => s.size === ship.size);
       if (!shipConfig) {
         throw new Error(`Неверный размер корабля: ${ship.size}`);
       }
 
       // Проверка размещения
-      if (
-        !isValidShipPlacement(
-          tempBoard,
-          ship,
-          ship.x,
-          ship.y,
-          ship.isHorizontal
-        )
-      ) {
+      if (!isValidShipPlacement(tempBoard, ship, ship.x, ship.y, ship.isHorizontal)) {
         throw new Error("Некорректная расстановка кораблей");
       }
 
@@ -574,11 +667,20 @@ function handleChatMessage(ws, text) {
   const room = rooms.get(roomId);
   if (!room) return;
 
+  // Текст уже санитизирован в handleMessage
+  const messageText = text.trim();
+  
+  // Проверяем, что сообщение не пустое
+  if (messageText.length === 0) return;
+  
+  // Ограничиваем длину сообщения
+  const finalText = messageText.substring(0, 500);
+
   broadcastToRoom(room, {
     type: "chat_message",
     playerId: ws.player.id,
     playerName: ws.player.name,
-    text: text.trim(),
+    text: finalText,
     timestamp: new Date().toLocaleTimeString(),
   });
 }
@@ -618,10 +720,24 @@ function resetGame(room) {
 }
 
 function broadcastToRoom(room, message) {
+  // Проверяем, что message - объект
+  if (!message || typeof message !== 'object') {
+    console.error('Попытка отправить некорректное сообщение');
+    return;
+  }
+  
+  const messageString = JSON.stringify(message);
+  
+  // Ограничиваем размер сообщения
+  if (messageString.length > 10000) {
+    console.error('Сообщение слишком большое');
+    return;
+  }
+  
   room.players.forEach((player) => {
     if (player.readyState === WebSocket.OPEN) {
       try {
-        player.send(JSON.stringify(message));
+        player.send(messageString);
       } catch (error) {
         console.error("Ошибка отправки сообщения:", error);
       }
@@ -677,6 +793,35 @@ function sendRoomsListToAll() {
       });
     }
   });
+}
+
+// защита
+// Добавляем функцию для санитизации строк
+function sanitizeString(str) {
+  if (typeof str !== 'string') return '';
+  
+  // Убираем HTML теги
+  str = str.replace(/<[^>]*>/g, '');
+  
+  // Экранируем специальные символы
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;',
+    '`': '&grave;',
+    '=': '&#x3D;'
+  };
+  
+  return str.replace(/[&<>"'`=\/]/g, (char) => map[char]);
+}
+
+// Функция для валидации числовых значений
+function validateNumber(num, min, max) {
+  const n = Number(num);
+  return !isNaN(n) && n >= min && n <= max && Number.isInteger(n);
 }
 
 const PORT = process.env.PORT || 3000;
