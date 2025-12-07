@@ -895,6 +895,9 @@
             
             // Функции для кораблей
             selectShip(size) {
+                // Если уже выбран этот же корабль - ничего не делаем
+                if (this.currentShip === size) return;
+                
                 const shipItem = document.querySelector(`.ship-item[data-size="${size}"]`);
                 const shipType = this.shipsToPlace.find(s => s.size === size);
                 
@@ -956,9 +959,18 @@
                 this.updateShipsToPlace();
                 this.renderPlayerBoard();
                 
-                // Снимаем выделение
-                document.querySelectorAll('.ship-item').forEach(item => item.classList.remove('selected'));
-                this.currentShip = null;
+                // Снимаем выделение только если все корабли данного размера расставлены
+                const shipItem = document.querySelector(`.ship-item[data-size="${this.currentShip}"]`);
+                
+                // Проверяем, остались ли еще корабли этого размера
+                if (shipType.placed >= shipType.count) {
+                    // Все корабли этого размера расставлены - снимаем выделение
+                    document.querySelectorAll('.ship-item').forEach(item => item.classList.remove('selected'));
+                    this.currentShip = null;
+                } else {
+                    // Корабли этого размера еще есть - оставляем выделение
+                    // Уже выделено, ничего не меняем
+                }
                 
                 this.addSystemMessage(`Размещен ${ship.size}-палубный корабль`);
             }
@@ -1061,6 +1073,10 @@
                     shipType.placed = count;
                 });
                 
+                // После авторасстановки сбрасываем выбор
+                this.currentShip = null;
+                document.querySelectorAll('.ship-item').forEach(item => item.classList.remove('selected'));
+
                 this.updateShipsToPlace();
                 this.renderPlayerBoard();
                 this.addSystemMessage('Корабли расставлены автоматически');
@@ -1073,6 +1089,10 @@
                 this.shipsToPlace.forEach(ship => {
                     ship.placed = 0;
                 });
+                
+                // Сбрасываем текущий выбор корабля
+                this.currentShip = null;
+                document.querySelectorAll('.ship-item').forEach(item => item.classList.remove('selected'));
                 
                 this.updateShipsToPlace();
                 this.renderPlayerBoard();
