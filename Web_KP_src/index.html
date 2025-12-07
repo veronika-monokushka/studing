@@ -1126,41 +1126,22 @@
                 this.renderOpponentBoard();
             }
             
+            
             renderPlayerBoard() {
                 const board = document.getElementById('playerBoard');
                 if (!board) return;
                 
                 board.innerHTML = '';
                 
-                // Добавляем буквы (A-J) и цифры (1-10)
+                // Создаем сетку 10x10 без дополнительных координатных клеток внутри сетки
                 for (let y = 0; y < 10; y++) {
                     for (let x = 0; x < 10; x++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell';
-                        cell.dataset.x = x;
-                        cell.dataset.y = y;
+                        cell.dataset.x = x;  // Тут правильные координаты
+                        cell.dataset.y = y;  // Тут правильные координаты
                         
-                        // Добавляем координаты для первой строки и первого столбца
-                        if (y === 0) {
-                            const coord = document.createElement('div');
-                            coord.className = 'cell coordinates';
-                            coord.textContent = String.fromCharCode(65 + x); // A-J
-                            board.appendChild(coord);
-                        }
-                        
-                        if (x === 0 && y > 0) {
-                            const coord = document.createElement('div');
-                            coord.className = 'cell coordinates';
-                            coord.textContent = y;
-                            board.appendChild(coord);
-                        }
-                        
-                        if (y === 0 || x === 0) continue;
-                        
-                        const actualX = x - 1;
-                        const actualY = y - 1;
-                        
-                        const cellValue = this.playerBoard[actualY][actualX];
+                        const cellValue = this.playerBoard[y][x];  // Прямой доступ к массиву
                         
                         if (cellValue === 1) {
                             cell.classList.add('ship');
@@ -1177,42 +1158,22 @@
                     }
                 }
             }
-            
+
             renderOpponentBoard() {
                 const board = document.getElementById('opponentBoard');
                 if (!board) return;
                 
                 board.innerHTML = '';
                 
-                // Добавляем буквы (A-J) и цифры (1-10)
+                // Создаем сетку 10x10 без дополнительных координатных клеток внутри сетки
                 for (let y = 0; y < 10; y++) {
                     for (let x = 0; x < 10; x++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell';
-                        cell.dataset.x = x;
-                        cell.dataset.y = y;
+                        cell.dataset.x = x;  // Тут правильные координаты
+                        cell.dataset.y = y;  // Тут правильные координаты
                         
-                        // Добавляем координаты для первой строки и первого столбца
-                        if (y === 0) {
-                            const coord = document.createElement('div');
-                            coord.className = 'cell coordinates';
-                            coord.textContent = String.fromCharCode(65 + x); // A-J
-                            board.appendChild(coord);
-                        }
-                        
-                        if (x === 0 && y > 0) {
-                            const coord = document.createElement('div');
-                            coord.className = 'cell coordinates';
-                            coord.textContent = y;
-                            board.appendChild(coord);
-                        }
-                        
-                        if (y === 0 || x === 0) continue;
-                        
-                        const actualX = x - 1;
-                        const actualY = y - 1;
-                        
-                        const cellValue = this.opponentBoard[actualY][actualX];
+                        const cellValue = this.opponentBoard[y][x];  // Прямой доступ к массиву
                         
                         if (cellValue === 2) {
                             cell.classList.add('hit');
@@ -1224,6 +1185,7 @@
                     }
                 }
             }
+            
             
             updatePlayerBoard() {
                 this.renderPlayerBoard();
