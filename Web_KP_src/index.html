@@ -541,6 +541,7 @@
                 this.shipOrientation = 'horizontal';
                 this.playerShips = [];
                 this.placedShips = [];
+                this.opponentSunkShips = 0;
                 this.isMyTurn = false;
                 this.opponentId = null;
                 this.playerBoard = Array(10).fill().map(() => Array(10).fill(0));
@@ -833,6 +834,7 @@
                         this.addSystemMessage(`🎯 Вы попали в (${x},${y})!`);
                         
                         if (message.shipSunk) {
+                            this.opponentSunkShips = (this.opponentSunkShips || 0) + 1; // Увеличиваем счетчик потопленных
                             this.addSystemMessage('💥 Вы потопили корабль противника!');
                         }
                     } else {
@@ -855,7 +857,7 @@
                     }
                 }
                 
-                this.updateCounters();
+                this.updateCounters(); // Обновляем счетчики после каждого выстрела
                 this.renderBoards();
             }
             
@@ -1192,17 +1194,46 @@
             }
             
             updateCounters() {
-                // Корабли игрока
-                const playerShipsCount = this.playerShips.length;
+                // Корабли игрока (сколько осталось непотопленными)
+                const playerLiveShips = this.playerShips.filter(ship => {
+                    for (let i = 0; i < ship.size; i++) {
+                        const shipX = ship.isHorizontal ? ship.x + i : ship.x;
+                        const shipY = ship.isHorizontal ? ship.y : ship.y + i;
+                        if (this.playerBoard[shipY][shipX] === 2) {
+                            // Нашли попадание в этот корабль
+                            // Проверяем, потоплен ли весь корабль
+                            let allHit = true;
+                            for (let j = 0; j < ship.size; j++) {
+                                const checkX = ship.isHorizontal ? ship.x + j : ship.x;
+                                const checkY = ship.isHorizontal ? ship.y : ship.y + j;
+                                if (this.playerBoard[checkY][checkX] !== 2) {
+                                    allHit = false;
+                                    break;
+                                }
+                            }
+                            // Если корабль потоплен, не считаем его живым
+                            if (allHit) return false;
+                        }
+                    }
+                    return true;
+                }).length;
+                
+                // Попадания по игроку
                 const playerHits = this.playerBoard.flat().filter(cell => cell === 2).length;
+                
+                // Живых кораблей у игрока
+                const playerShipsCount = playerLiveShips;
                 document.getElementById('playerShipsCount').textContent = `${playerShipsCount}/10`;
                 document.getElementById('playerHitsCount').textContent = playerHits;
                 
                 // Попадания по противнику
                 const opponentHits = this.opponentBoard.flat().filter(cell => cell === 2).length;
-                const sunkShips = this.playerShips.length - playerShipsCount;
+                
+                // считаем через shipSunk события
+                if (!this.opponentSunkShips) this.opponentSunkShips = 0;
+                
                 document.getElementById('opponentHitsCount').textContent = opponentHits;
-                document.getElementById('sunkShipsCount').textContent = `${sunkShips}/10`;
+                document.getElementById('sunkShipsCount').textContent = `${this.opponentSunkShips || 0}/10`;
             }
             
             updateShipsToPlace() {
