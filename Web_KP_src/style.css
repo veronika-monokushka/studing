@@ -1,0 +1,449 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    font-family: Arial, sans-serif; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    min-height: 100vh; 
+    padding: 20px; 
+    color: #333;
+}
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    background: white; 
+    border-radius: 15px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+    overflow: hidden; 
+}
+.header { 
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); 
+    color: white; 
+    padding: 25px; 
+    text-align: center; 
+    border-bottom: 3px solid #3498db;
+}
+.header h1 { 
+    font-size: 28px; 
+    margin-bottom: 10px; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+.main-content { 
+    display: grid; 
+    grid-template-columns: 280px 1fr; 
+    min-height: 700px; 
+}
+.sidebar { 
+    background: #34495e; 
+    color: white; 
+    padding: 20px; 
+    border-right: 2px solid #2c3e50;
+}
+.sidebar h3 { 
+    color: #3498db; 
+    margin-bottom: 15px; 
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+}
+.game-area { 
+    padding: 25px; 
+    background: #ecf0f1; 
+    min-height: 700px;
+}
+
+/* Стили для комнат */
+.rooms-list { 
+    margin-bottom: 25px; 
+}
+.room-item { 
+    background: #4a6278; 
+    margin: 10px 0; 
+    padding: 15px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: all 0.3s ease;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+}
+.room-item:hover { 
+    background: #5a7288; 
+    transform: translateX(5px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+.room-item.available { 
+    border-left-color: #2ecc71; 
+}
+.room-item.full { 
+    background: #7f8c8d; 
+    cursor: not-allowed;
+    border-left-color: #e74c3c;
+}
+.room-item.full:hover { 
+    background: #7f8c8d; 
+    transform: none;
+}
+.room-item.started { 
+    background: #e74c3c; 
+    cursor: not-allowed;
+}
+.room-item.started:hover { 
+    background: #e74c3c; 
+    transform: none;
+}
+.room-info { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-top: 5px; 
+    font-size: 14px;
+    color: #ecf0f1;
+}
+
+/* Сетка для игры */
+.boards-container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+    margin-bottom: 30px; 
+}
+.board-section { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 2px solid #3498db;
+}
+.board-title { 
+    text-align: center; 
+    margin-bottom: 15px; 
+    font-weight: bold; 
+    color: #2c3e50; 
+    font-size: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+/* Сетка игрового поля */
+.board { 
+    display: grid; 
+    grid-template-columns: repeat(10, 35px); 
+    grid-template-rows: repeat(10, 35px); 
+    gap: 2px; 
+    margin: 0 auto; 
+    background: #2980b9; 
+    padding: 5px; 
+    border-radius: 5px; 
+    border: 3px solid #2c3e50;
+}
+.cell { 
+    width: 35px; 
+    height: 35px; 
+    background: #3498db; 
+    border: 1px solid #2980b9; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 14px; 
+    font-weight: bold; 
+    transition: all 0.2s;
+    position: relative;
+}
+.cell:hover { 
+    background: #2980b9; 
+    transform: scale(1.05);
+}
+.cell.coordinates { 
+    background: transparent; 
+    border: none; 
+    font-weight: bold; 
+    color: white; 
+    cursor: default;
+}
+.cell.coordinates:hover { 
+    background: transparent; 
+    transform: none;
+}
+.cell.ship { 
+    background: #2c3e50; 
+    border-color: #34495e;
+}
+.cell.ship.placed { 
+    background: #34495e; 
+    opacity: 0.8;
+}
+.cell.hit { 
+    background: #e74c3c; 
+    color: white; 
+}
+.cell.hit::after { 
+    content: "✕"; 
+    font-size: 20px; 
+    color: white;
+}
+.cell.miss { 
+    background: #ecf0f1; 
+}
+.cell.miss::after { 
+    content: "•"; 
+    font-size: 20px; 
+    color: #7f8c8d;
+}
+.cell.ship.hit { 
+    background: #c0392b; 
+    border-color: #e74c3c;
+}
+
+.cell.blocked {
+    background: #95a5a6 !important;
+    cursor: not-allowed;
+}
+.cell.blocked::after {
+    content: "✕";
+    font-size: 20px;
+    color: #7f8c8d;
+    opacity: 0.5;
+}
+
+/* Панель управления */
+.controls { 
+    text-align: center; 
+    margin: 25px 0; 
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+button { 
+    background: linear-gradient(to right, #3498db, #2980b9); 
+    color: white; 
+    border: none; 
+    padding: 12px 25px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    margin: 0 8px; 
+    font-size: 15px; 
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+button:hover { 
+    background: linear-gradient(to right, #2980b9, #3498db); 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+}
+button:active { 
+    transform: translateY(0);
+}
+button:disabled { 
+    background: #bdc3c7; 
+    cursor: not-allowed; 
+    transform: none;
+    box-shadow: none;
+}
+
+/* Чат */
+.chat-container { 
+    background: white; 
+    border-radius: 10px; 
+    padding: 20px; 
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 1px solid #bdc3c7;
+}
+.chat-messages { 
+    height: 200px; 
+    border: 2px solid #3498db; 
+    border-radius: 8px; 
+    padding: 15px; 
+    margin-bottom: 15px; 
+    overflow-y: auto; 
+    background: #f8f9fa;
+}
+.chat-input { 
+    display: flex; 
+    gap: 10px; 
+}
+.chat-input input { 
+    flex: 1; 
+    padding: 12px; 
+    border: 2px solid #3498db; 
+    border-radius: 5px; 
+    font-size: 14px;
+}
+.chat-input input:focus { 
+    outline: none; 
+    border-color: #2980b9;
+}
+
+/* Статусы */
+.status { 
+    text-align: center; 
+    padding: 15px; 
+    margin: 15px 0; 
+    border-radius: 8px; 
+    font-weight: bold; 
+    font-size: 16px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.status.waiting { 
+    background: linear-gradient(135deg, #f39c12, #e67e22); 
+    color: white; 
+}
+.status.ready { 
+    background: linear-gradient(135deg, #27ae60, #2ecc71); 
+    color: white; 
+}
+.status.your-turn { 
+    background: linear-gradient(135deg, #2ecc71, #27ae60); 
+    color: white; 
+    animation: pulse 1.5s infinite;
+}
+.status.opponent-turn { 
+    background: linear-gradient(135deg, #e74c3c, #c0392b); 
+    color: white; 
+}
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* Расстановка кораблей */
+.ship-placing { 
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
+    border: 2px solid #f39c12; 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.ship-placing h3 { 
+    color: #d35400; 
+    margin-bottom: 15px;
+    text-align: center;
+}
+.ship-list { 
+    display: flex; 
+    gap: 15px; 
+    margin: 15px 0; 
+    flex-wrap: wrap; 
+    justify-content: center;
+}
+.ship-item { 
+    padding: 10px 20px; 
+    background: linear-gradient(135deg, #3498db, #2980b9); 
+    color: white; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+    min-width: 120px;
+    text-align: center;
+}
+.ship-item:hover { 
+    background: linear-gradient(135deg, #2980b9, #3498db); 
+    transform: translateY(-3px);
+    box-shadow: 0 5px 8px rgba(0,0,0,0.3);
+}
+.ship-item.selected { 
+    background: linear-gradient(135deg, #e74c3c, #c0392b); 
+    transform: scale(1.05);
+}
+.ship-item.placed { 
+    background: linear-gradient(135deg, #27ae60, #2ecc71); 
+}
+
+/* Информация об игроке */
+.player-info { 
+    background: #2c3e50; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-top: 20px;
+    border: 2px solid #3498db;
+}
+.player-info h3 { 
+    color: #3498db; 
+    margin-bottom: 10px;
+}
+#playerId { 
+    font-family: monospace; 
+    background: #34495e; 
+    padding: 8px; 
+    border-radius: 4px; 
+    margin-top: 10px;
+    word-break: break-all;
+    font-size: 12px;
+    color: #ecf0f1;
+}
+
+/* Вспомогательные классы */
+.hidden { display: none !important; }
+.visible { display: block; }
+
+/* Лобби */
+#lobbyView { 
+    text-align: center; 
+    padding: 50px;
+}
+#lobbyView h2 { 
+    color: #2c3e50; 
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+#lobbyView p { 
+    color: #7f8c8d; 
+    font-size: 16px;
+}
+.instructions {
+    margin-top: 30px;
+    color: #7f8c8d;
+}
+
+/* Инструкция расстановки */
+.placement-instruction {
+    text-align: center; 
+    margin-bottom: 15px; 
+    color: #d35400;
+}
+.placement-controls {
+    text-align: center; 
+    margin: 15px 0;
+}
+.placement-confirm {
+    text-align: center;
+}
+.confirm-btn {
+    padding: 15px 30px; 
+    font-size: 16px;
+}
+.placement-status {
+    text-align: center; 
+    margin-top: 15px; 
+    color: #27ae60;
+}
+
+/* Статистика поля */
+.board-stats {
+    text-align: center; 
+    margin-top: 10px; 
+    color: #2c3e50;
+}
+
+/* Сообщения чата */
+.message { 
+    margin-bottom: 10px; 
+    padding: 8px 12px; 
+    border-radius: 5px; 
+    background: white; 
+    border-left: 4px solid #3498db;
+}
+.message.system { 
+    background: #f8f9fa; 
+    border-left-color: #95a5a6; 
+    font-style: italic;
+}
+.message.player { 
+    border-left-color: #2ecc71;
+}
+.message.opponent { 
+    border-left-color: #e74c3c;
+}
