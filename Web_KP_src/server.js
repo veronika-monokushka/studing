@@ -3,21 +3,45 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
+const WebSocket = require("ws");
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+
 const server = http.createServer((req, res) => {
-  if (req.url === "/" || req.url === "/index.html") {
-    fs.readFile(path.join(__dirname, "index.html"), (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        res.end("Error loading index.html");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(data);
-    });
+  let filePath = '';
+  
+  // Определяем путь к файлу
+  if (req.url === '/' || req.url === '/index.html') {
+    filePath = path.join(__dirname, 'index.html');
+  } else if (req.url === '/style.css') {
+    filePath = path.join(__dirname, 'style.css');
+    res.setHeader('Content-Type', 'text/css');
+  } else if (req.url === '/game.js') {
+    filePath = path.join(__dirname, 'game.js');
+    res.setHeader('Content-Type', 'application/javascript');
   } else {
     res.writeHead(404);
     res.end();
+    return;
   }
+  
+  // Читаем и отдаем файл
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.writeHead(500);
+      res.end('Error loading file');
+      return;
+    }
+    
+    // Устанавливаем заголовки в зависимости от типа файла
+    if (req.url === '/' || req.url === '/index.html') {
+      res.setHeader('Content-Type', 'text/html');
+    }
+    
+    res.writeHead(200);
+    res.end(data);
+  });
 });
 
 const wss = new WebSocket.Server({ server });
