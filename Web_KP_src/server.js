@@ -3,46 +3,46 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const WebSocket = require("ws");
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
-
 const server = http.createServer((req, res) => {
-  let filePath = '';
+  let filePath = req.url === '/' ? '/index.html' : req.url;
+  filePath = path.join(__dirname, filePath);
   
-  // Определяем путь к файлу
-  if (req.url === '/' || req.url === '/index.html') {
-    filePath = path.join(__dirname, 'index.html');
-  } else if (req.url === '/style.css') {
-    filePath = path.join(__dirname, 'style.css');
-    res.setHeader('Content-Type', 'text/css');
-  } else if (req.url === '/game.js') {
-    filePath = path.join(__dirname, 'game.js');
-    res.setHeader('Content-Type', 'application/javascript');
-  } else {
-    res.writeHead(404);
-    res.end();
-    return;
-  }
-  
-  // Читаем и отдаем файл
-  fs.readFile(filePath, (err, data) => {
+  // Проверяем существование файла
+  fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      res.writeHead(500);
-      res.end('Error loading file');
+      res.writeHead(404);
+      res.end('File not found');
       return;
     }
     
-    // Устанавливаем заголовки в зависимости от типа файла
-    if (req.url === '/' || req.url === '/index.html') {
-      res.setHeader('Content-Type', 'text/html');
-    }
+    // Определяем Content-Type по расширению файла
+    const ext = path.extname(filePath).toLowerCase();
+    const mimeTypes = {
+      '.html': 'text/html',
+      '.css': 'text/css',
+      '.js': 'application/javascript',
+      '.json': 'application/json',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.svg': 'image/svg+xml'
+    };
     
-    res.writeHead(200);
-    res.end(data);
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        res.writeHead(500);
+        res.end('Error loading file');
+        return;
+      }
+      
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(data);
+    });
   });
 });
+
 
 const wss = new WebSocket.Server({ server });
 
